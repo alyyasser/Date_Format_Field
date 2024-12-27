@@ -103,6 +103,10 @@ class _DateFormatFieldState extends State<DateFormatField> {
   @override
   void initState() {
     _dobFormater = widget.controller ?? TextEditingController();
+    final initialDate = widget.initialDate;
+    if (initialDate != null) {
+      _dobFormater.text = formatDate(initialDate);
+    }
     super.initState();
   }
 
@@ -150,6 +154,21 @@ class _DateFormatFieldState extends State<DateFormatField> {
     });
   }
 
+  String formatDate(DateTime date) {
+    switch (widget.type) {
+      case DateFormatType.type1:
+        return '${padDayMonth(date.day)}/${padDayMonth(date.month)}/${date.year % 100}';
+      case DateFormatType.type2:
+        return '${padDayMonth(date.day)}/${padDayMonth(date.month)}/${date.year}';
+      case DateFormatType.type3:
+        return '${padDayMonth(date.day)}-${padDayMonth(date.month)}-${date.year % 100}';
+      case DateFormatType.type4:
+        return '${padDayMonth(date.day)}-${padDayMonth(date.month)}-${date.year}';
+      default:
+        return '';
+    }
+  }
+
   Future<void> pickDate() async {
     /// pick the date directly from the screen
     final picked = await showDatePicker(
@@ -159,27 +178,7 @@ class _DateFormatFieldState extends State<DateFormatField> {
       lastDate: widget.lastDate ?? DateTime(3000),
     );
     if (picked != null) {
-      String inputText;
-      switch (widget.type) {
-        case DateFormatType.type1:
-          inputText =
-              '${padDayMonth(picked.day)}/${padDayMonth(picked.month)}/${picked.year % 100}';
-          break;
-        case DateFormatType.type2:
-          inputText =
-              '${padDayMonth(picked.day)}/${padDayMonth(picked.month)}/${picked.year}';
-          break;
-        case DateFormatType.type3:
-          inputText =
-              '${padDayMonth(picked.day)}-${padDayMonth(picked.month)}-${picked.year % 100}';
-          break;
-        case DateFormatType.type4:
-          inputText =
-              '${padDayMonth(picked.day)}-${padDayMonth(picked.month)}-${picked.year}';
-          break;
-        default:
-          inputText = '';
-      }
+      final inputText = formatDate(picked);
       setState(() {
         _dobFormater.text = inputText;
       });
